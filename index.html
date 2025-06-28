@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portofolio Profesional Saya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  </head>
+  <body x-data="portfolioApp()" x-init="init()" :class="{ 'overflow-hidden': isModalOpen || isLightboxOpen || isDeleteModalOpen || isSuccessModalOpen || isEditModalOpen }" class="text-slate-800 antialiased">
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-30">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+          <h1 class="text-2xl font-bold text-indigo-600">WebKangAlam</h1>
+          <nav class="hidden md:flex items-center space-x-6">
+            <a href="#portfolio" class="font-medium text-slate-600 hover:text-indigo-600 transition-colors">Koleksi</a>
+            <a href="#about" class="font-medium text-slate-600 hover:text-indigo-600 transition-colors">Tentang Saya</a>
+            <a href="#contact" class="font-medium text-slate-600 hover:text-indigo-600 transition-colors">Kontak</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="relative bg-gradient-to-br from-indigo-600 to-purple-700 text-white py-20 md:py-32 px-4 overflow-hidden">
+        <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div class="text-center md:text-left" data-aos="fade-right">
+            <h2 class="text-4xl md:text-5xl font-extrabold !leading-tight mb-4">Membangun Solusi Digital, Menjelajahi Alam.</h2>
+            <p class="text-lg md:text-xl text-indigo-200 leading-relaxed">Selamat datang di ruang digital saya, tempat saya mendokumentasikan eksplorasi di dunia teknologi dan keindahan alam Indonesia</p>
+            <a href="#portfolio" class="mt-8 inline-block bg-white text-indigo-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-slate-100 transform hover:-translate-y-1 transition-all">Lihat Karya Saya</a>
+          </div>
+          <div class="flex justify-center" data-aos="fade-left" data-aos-delay="200">
+            <img src="img/PAIVE8808.JPG" alt="Foto Profil" class="w-64 h-64 md:w-80 md:h-80 rounded-full border-8 border-white/20 shadow-2xl object-cover" />
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" class="py-20 bg-slate-50">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-12" data-aos="fade-up">
+            <h3 class="text-3xl md:text-4xl font-bold text-slate-900">Koleksi Kegiatan Kang Alam</h3>
+            <p class="text-slate-500 mt-2 max-w-2xl mx-auto">Klik pada gambar untuk melihat galeri dan detail.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" data-aos="fade-up" data-aos-delay="100">
+            <input x-model.debounce.300ms="searchQuery" type="text" placeholder="Cari berdasarkan judul..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+            <select x-model="filterCategory" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <option value="Semua">Semua Kategori</option>
+              <option value="Pengembangan Web">Pengembangan Web</option>
+              <option value="Sertifikasi & Pelatihan">Sertifikasi & Pelatihan</option>
+              <option value="Kegiatan Akademik & Organisasi">Kegiatan Akademik & Organisasi</option>
+              <option value="Pendakian & Eksplorasi Alam">Pendakian & Eksplorasi Alam</option>
+              <option value="Proyek">Proyek</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+            <select x-model="sortOrder" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <option value="newest">Terbaru</option>
+              <option value="oldest">Terlama</option>
+              <option value="title-asc">Judul (A-Z)</option>
+              <option value="title-desc">Judul (Z-A)</option>
+            </select>
+          </div>
+          <div x-show="!isLoading && paginatedItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <template x-for="(item, index) in paginatedItems" :key="item.id">
+              <div data-aos="fade-up" :data-aos-delay="index * 100" class="bg-white rounded-lg shadow-md overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300 flex flex-col">
+                <div @click="openLightbox(item)" class="relative cursor-pointer">
+                  <img
+                    :src="item.imageUrls && item.imageUrls.length > 0 ? item.imageUrls[0] : 'https://placehold.co/400x250/e8e8e8/adadad?text=Tidak+Ada+Gambar'"
+                    :alt="item.title"
+                    class="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                  />
+                  <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full flex items-center" x-show="item.imageUrls && item.imageUrls.length > 1">
+                    -->
+                    <span x-text="item.imageUrls.length"></span>
+                  </div>
+                </div>
+                <div class="p-5 flex-grow">
+                  <span class="text-sm font-semibold text-indigo-600" x-html="item.category"></span>
+                  <h4 class="text-lg font-bold text-slate-800 mt-1" x-text="item.title"></h4>
+                  <p class="text-slate-600 text-sm mt-2 line-clamp-3" x-text="item.description"></p>
+                </div>
+                <div class="p-5 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                  <p class="text-xs text-slate-500">Dipublikasikan: <span x-text="new Date(item.timestamp * 1000).toLocaleDateString('id-ID')"></span></p>
+                  <div class="flex space-x-2">
+                    <button @click.stop="openEditModal(item)" title="Edit Item Ini" class="text-slate-400 hover:text-indigo-500 transition-colors">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                      </svg>
+                    </button>
+                    <button @click.stop="openDeleteItemModal(item.id, item.title)" title="Hapus Item Ini" class="text-slate-400 hover:text-red-500 transition-colors">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div x-show="!isLoading && totalPages > 1" class="flex justify-center items-center space-x-4 mt-12" data-aos="fade-up">
+            <button @click="prevPage" :disabled="currentPage === 1" class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-100 disabled:opacity-50">Sebelumnya</button>
+            <div class="flex items-center space-x-2">
+              <template x-for="page in Array.from({ length: totalPages }, (_, i) => i + 1)" :key="page"
+                ><button @click="currentPage = page" :class="{ 'bg-indigo-600 text-white': currentPage === page, 'bg-white hover:bg-slate-100': currentPage !== page }" class="w-10 h-10 rounded-lg border shadow-sm" x-text="page"></button
+              ></template>
+            </div>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-slate-100 disabled:opacity-50">Berikutnya</button>
+          </div>
+          <div x-show="isLoading" class="text-center py-16"><p class="text-slate-500">Memuat data...</p></div>
+          <div x-show="!isLoading && filteredItems.length === 0" class="text-center py-16"><p class="text-slate-500">Tidak ada item yang cocok.</p></div>
+        </div>
+      </section>
+
+      <section id="about" x-ref="aboutSection" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-12" data-aos="fade-up">
+            <h3 class="text-3xl md:text-4xl font-bold text-slate-900">Tentang Saya</h3>
+            <p class="text-slate-500 mt-2 max-w-2xl mx-auto">Sedikit cerita tentang latar belakang dan keahlian saya.</p>
+          </div>
+          <div class="grid md:grid-cols-3 gap-12 items-center">
+            <div class="md:col-span-1 flex justify-center items-center relative z-10" data-aos="zoom-in">
+              <div class="id-card-viewport" x-data="idCardPhysics()">
+                <svg class="lanyard-svg"><path class="lanyard-path" :d="lanyardPath" /></svg>
+                <div class="id-card" x-ref="idCard" @mousedown="startDrag" @touchstart.prevent="startDrag" :style="{ transform: `translate(${position.x}px, ${position.y}px) rotateZ(${rotation}deg)` }">
+                  <img src="img/PAIVE8808.JPG" alt="Foto Profil" class="id-card-photo" />
+                  <div class="id-card-name">MUHAMAD NUR SALAM</div>
+                  <div class="id-card-title">Informatics Engineering</div>
+                  <div class="id-card-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://wa.me/6285221560909" alt="QR Code" /></div>
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-2" data-aos="fade-left">
+              <h4 class="text-2xl font-bold text-slate-800 mb-4">MUHAMAD NUR SALAM | ALAM</h4>
+              <p class="text-slate-600 leading-relaxed mb-4">
+                Halo! Saya adalah seorang individu yang bersemangat dalam dunia teknologi. Saya senang mempelajari hal-hal baru dan menerapkannya dalam proyek-proyek yang menantang. Saya memiliki pengalaman dalam pembuatan website, teknisi
+                komputer, dan digital marketing.
+              </p>
+              <p class="text-slate-600 leading-relaxed mb-6">Di luar pekerjaan, saya suka naik gunung, exsplore pantai, curug, dan dunia cyber security yang membantu saya tetap kreatif dan menghibur diri sendiri.</p>
+              <h4 class="text-2xl font-bold text-slate-800 mb-4">Keahlian Utama</h4>
+              <ul class="space-y-3">
+                <li class="flex items-center">
+                  <svg class="h-6 w-6 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg
+                  ><span class="text-slate-700">Dasar - dasar Keamanan Siber</span>
+                </li>
+                <li class="flex items-center">
+                  <svg class="h-6 w-6 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg
+                  ><span class="text-slate-700">Pengembangan Web (Front-end & Back-end sedang dalam proses pendalaman)</span>
+                </li>
+                <li class="flex items-center">
+                  <svg class="h-6 w-6 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg
+                  ><span class="text-slate-700">Teknisi Komputer </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="contact" class="py-20 bg-slate-50">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-12" data-aos="fade-up">
+            <h3 class="text-3xl md:text-4xl font-bold text-slate-900">Hubungi Saya</h3>
+            <p class="text-slate-500 mt-2 max-w-2xl mx-auto">Jangan ragu untuk menghubungi saya untuk kolaborasi, proyek, atau sekedar berbagi cerita.</p>
+          </div>
+          <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12">
+            <div data-aos="fade-right">
+              <h4 class="text-xl font-bold mb-4">Temukan Saya Online</h4>
+              <p class="text-slate-600 mb-6">Anda bisa menemukan saya di platform berikut:</p>
+              <div class="flex items-center space-x-4">
+                <a href="https://github.com/Lam89-Pass" target="_blank" title="GitHub" class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-black hover:text-white transition-all"
+                  ><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.695-4.566 4.943.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z"
+                      clip-rule="evenodd"
+                    /></svg
+                ></a>
+                <a
+                  href="https://www.linkedin.com/in/muhamadnursalam"
+                  target="_blank"
+                  title="LinkedIn"
+                  class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-blue-700 hover:text-white transition-all"
+                  ><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                    /></svg
+                ></a>
+                <a
+                  href="https://www.instagram.com/lam.xyz_"
+                  target="_blank"
+                  title="Instagram"
+                  class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-gradient-to-br from-pink-500 to-yellow-500 hover:text-white transition-all"
+                  ><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.689-.073-4.948-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"
+                    /></svg
+                ></a>
+                <a href="https://www.tiktok.com/@lam.xyz_" target="_blank" title="TikTok" class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-black hover:text-white transition-all"
+                  ><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16"><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3V0Z" /></svg
+                ></a>
+                <a href="https://wa.me/6285221560909" target="_blank" title="WhatsApp" class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 hover:bg-green-500 hover:text-white transition-all"
+                  ><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+                    <path
+                      d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.601 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.068-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"
+                    /></svg
+                ></a>
+              </div>
+              <div class="mt-8 pt-8 border-t border-slate-200">
+                <h5 class="text-lg font-semibold mb-4">Atau Hubungi Langsung</h5>
+                <div class="space-y-4">
+                  <div class="flex items-center text-slate-600">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg
+                    ><a href="mailto:aaallaaamm03@gmail.com" class="hover:text-indigo-600">aaallaaamm03@gmail.com</a>
+                  </div>
+                  <div class="flex items-center text-slate-600">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg
+                    ><span>Bandung, Jawa Barat, Indonesia</span>
+                  </div>
+                </div>
+                <div class="mt-8">
+                  <a href="cv.html" download class="inline-flex items-center justify-center w-full px-6 py-3 font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all"
+                    ><svg class="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg
+                    >Unduh CV</a
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-lg" data-aos="fade-left">
+              <form @submit.prevent="handleContactSubmit">
+                <div class="space-y-5">
+                  <div><label for="name" class="font-medium text-slate-700">Nama Lengkap</label><input x-model="contactForm.name" type="text" id="name" name="name" required class="w-full mt-2 p-3 border border-slate-300 rounded-lg" /></div>
+                  <div>
+                    <label for="email" class="font-medium text-slate-700">Alamat Email</label><input x-model="contactForm.email" type="email" id="email" name="email" required class="w-full mt-2 p-3 border border-slate-300 rounded-lg" />
+                  </div>
+                  <div>
+                    <label for="message" class="font-medium text-slate-700">Pesan</label
+                    ><textarea x-model="contactForm.message" id="message" name="message" rows="4" required class="w-full mt-2 p-3 border border-slate-300 rounded-lg"></textarea>
+                  </div>
+                  <div x-show="contactMessage && contactSubmitStatus === 'error'" x-transition><p class="bg-red-100 text-red-800 p-3 rounded-lg text-sm" x-text="contactMessage"></p></div>
+                  <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 disabled:opacity-50" :disabled="isContactSubmitting">
+                    <span x-show="!isContactSubmitting">Kirim Pesan</span>
+                    <span x-show="isContactSubmitting">Mengirim...</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="fixed bottom-8 right-8 z-20 flex flex-col items-center space-y-4">
+      <div x-show="showScrollTop" x-transition>
+        <button @click="window.scrollTo({ top: 0, behavior: 'smooth' })" class="bg-slate-700 hover:bg-slate-800 text-white p-4 rounded-full shadow-lg transform hover:scale-110" title="Kembali ke Atas">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>
+        </button>
+      </div>
+      <button @click="isModalOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transform hover:scale-110" title="Tambah Item Baru">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+      </button>
+    </div>
+
+    <div x-show="isModalOpen" x-cloak @keydown.escape.window="isModalOpen = false" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
+      <div @click.away="isModalOpen = false" x-show="isModalOpen" x-transition class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full">
+        <h3 class="text-2xl font-bold text-slate-800 mb-6">Tambah Item Baru</h3>
+        <form @submit.prevent="handleAddItem">
+          <div class="space-y-4">
+            <input x-model="newItem.title" type="text" placeholder="Judul Item" class="w-full p-3 border rounded-lg" required />
+            <textarea x-model="newItem.description" rows="3" placeholder="Deskripsi Singkat" class="w-full p-3 border rounded-lg" required></textarea>
+            <select x-model="newItem.category" class="w-full p-3 border rounded-lg" required>
+              <option value="Pengembangan Web">Pengembangan Web</option>
+              <option value="Sertifikasi & Pelatihan">Sertifikasi & Pelatihan</option>
+              <option value="Kegiatan Akademik & Organisasi">Kegiatan Akademik & Organisasi</option>
+              <option value="Pendakian & Eksplorasi Alam">Pendakian & Eksplorasi Alam</option>
+              <option value="Proyek">Proyek</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+            <div>
+              <label
+                for="file-upload"
+                class="w-full flex items-center justify-center px-4 py-3 bg-white text-indigo-600 rounded-lg shadow-sm tracking-wide border-2 border-dashed border-indigo-200 cursor-pointer hover:bg-indigo-50 hover:border-indigo-500"
+              >
+                <svg class="w-8 h-8 mr-3" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
+                </svg>
+                <span class="text-base leading-normal" x-text="selectedFileNames.length > 0 ? `${selectedFileNames.length} file dipilih` : 'Pilih File untuk di Upload'"></span>
+                <input type="file" id="file-upload" @change="handleFileSelect" class="hidden" multiple accept="image/*" />
+              </label>
+              <div x-show="selectedFileNames.length > 0" class="mt-3 text-sm text-slate-500 max-h-24 overflow-y-auto">
+                <p class="font-bold">File yang akan diunggah:</p>
+                <ul class="list-disc list-inside">
+                  <template x-for="name in selectedFileNames" :key="name"><li x-text="name"></li></template>
+                </ul>
+              </div>
+            </div>
+            <input x-model="newItem.adminPassword" type="password" placeholder="Kata Sandi Admin" class="w-full p-3 border rounded-lg" required />
+            <div x-show="validationMessage" class="text-red-600 text-sm font-medium" x-text="validationMessage"></div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" @click="isModalOpen = false" class="px-6 py-2 bg-slate-200 rounded-lg hover:bg-slate-300">Batal</button>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" :disabled="isSubmitting"><span x-show="!isSubmitting">Tambah</span><span x-show="isSubmitting">Menambahkan...</span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div x-show="isEditModalOpen" x-cloak @keydown.escape.window="closeEditModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-40">
+      <div @click.away="closeEditModal" x-show="isEditModalOpen" x-transition class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <h3 class="text-2xl font-bold text-slate-800 mb-6">Edit Item</h3>
+        <form @submit.prevent="handleUpdateItem">
+          <div class="space-y-4">
+            <input x-model="itemToEdit.title" type="text" placeholder="Judul Item" class="w-full p-3 border rounded-lg" required />
+            <textarea x-model="itemToEdit.description" rows="3" placeholder="Deskripsi Singkat" class="w-full p-3 border rounded-lg" required></textarea>
+            <select x-model="itemToEdit.category" class="w-full p-3 border rounded-lg" required>
+              <option value="Pengembangan Web">Pengembangan Web</option>
+              <option value="Sertifikasi & Pelatihan">Sertifikasi & Pelatihan</option>
+              <option value="Kegiatan Akademik & Organisasi">Kegiatan Akademik & Organisasi</option>
+              <option value="Pendakian & Eksplorasi Alam">Pendakian & Eksplorasi Alam</option>
+              <option value="Proyek">Proyek</option>
+              <option value="Lain-lain">Lain-lain</option>
+            </select>
+
+            <div>
+              <label class="font-medium text-slate-700">Ganti Gambar</label>
+              <p class="text-sm text-slate-500 mb-2">Unggah file baru akan menggantikan semua gambar lama.</p>
+              <div class="mt-2">
+                <img :src="editImagePreview" alt="Image Preview" class="w-full h-48 object-cover rounded-lg mb-2 bg-slate-100" />
+              </div>
+              <label
+                for="edit-file-upload"
+                class="w-full flex items-center justify-center px-4 py-3 bg-white text-indigo-600 rounded-lg shadow-sm tracking-wide border-2 border-dashed border-indigo-200 cursor-pointer hover:bg-indigo-50 hover:border-indigo-500"
+              >
+                <svg class="w-8 h-8 mr-3" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
+                </svg>
+                <span class="text-base leading-normal" x-text="editSelectedFileName || 'Pilih file baru (opsional)'"></span>
+                <input type="file" id="edit-file-upload" @change="handleEditFileSelect" class="hidden" multiple accept="image/*" />
+              </label>
+            </div>
+
+            <input x-model="editPassword" type="password" placeholder="Kata Sandi Admin untuk Konfirmasi" class="w-full p-3 border rounded-lg" required />
+            <div x-show="validationMessage" class="text-red-600 text-sm font-medium" x-text="validationMessage"></div>
+          </div>
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button" @click="closeEditModal" class="px-6 py-2 bg-slate-200 rounded-lg hover:bg-slate-300">Batal</button>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" :disabled="isSubmitting">
+              <span x-show="!isSubmitting">Simpan Perubahan</span>
+              <span x-show="isSubmitting">Menyimpan...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div x-show="isLightboxOpen" x-cloak @keydown.escape.window="closeLightbox" @keydown.arrow-right.window="nextImage" @keydown.arrow-left.window="prevImage" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
+      <div class="relative w-full h-full flex items-center justify-center">
+        <button @click="prevImage" x-show="lightboxItem.imageUrls && lightboxItem.imageUrls.length > 1" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full w-12 h-12 hover:bg-white/40">&#10094;</button>
+        <div class="relative max-w-4xl max-h-full flex flex-col items-center">
+          <img :src="lightboxItem.imageUrls && lightboxItem.imageUrls.length > 0 ? lightboxItem.imageUrls[lightboxImageIndex] : ''" :alt="lightboxItem.title" class="w-auto h-auto max-w-full max-h-[75vh] rounded-lg shadow-lg bg-gray-800" />
+          <div class="mt-4 p-4 text-white text-center" x-show="lightboxItem.title">
+            <h3 class="text-xl font-bold" x-text="lightboxItem.title"></h3>
+            <p class="text-sm opacity-80 mt-1" x-text="lightboxItem.description"></p>
+            <p class="text-xs opacity-60 mt-2" x-show="lightboxItem.imageUrls && lightboxItem.imageUrls.length > 1"><span x-text="lightboxImageIndex + 1"></span> / <span x-text="lightboxItem.imageUrls.length"></span></p>
+            <button @click="openDeleteImageModal" class="mt-3 px-4 py-1 bg-red-600 text-white text-xs rounded-full hover:bg-red-700">Hapus Foto Ini</button>
+          </div>
+        </div>
+        <button @click="nextImage" x-show="lightboxItem.imageUrls && lightboxItem.imageUrls.length > 1" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full w-12 h-12 hover:bg-white/40">&#10095;</button>
+        <button @click="closeLightbox" class="absolute top-4 right-4 bg-white/20 text-white rounded-full w-10 h-10 flex items-center justify-center">&times;</button>
+      </div>
+    </div>
+
+    <div x-show="isDeleteModalOpen" x-cloak @keydown.escape.window="closeDeleteModal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+      <div @click.away="closeDeleteModal" x-show="isDeleteModalOpen" x-transition class="bg-white rounded-xl p-8 shadow-2xl max-w-md w-full">
+        <h3 class="text-xl font-bold text-slate-800 mb-2" x-text="`Hapus ${itemToDelete.type === 'item' ? 'Item' : 'Foto'}`"></h3>
+        <p class="text-slate-600 mb-6" x-text="`Anda yakin ingin menghapus ${itemToDelete.type === 'item' ? `item '${itemToDelete.title}' secara permanen` : 'foto ini'}? Tindakan ini tidak dapat dibatalkan.`"></p>
+        <div class="space-y-4">
+          <input x-model="deletePassword" type="password" placeholder="Masukkan kata sandi admin" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" required />
+          <div x-show="validationMessage" class="text-red-500 text-sm" x-text="validationMessage"></div>
+        </div>
+        <div class="flex justify-end space-x-3 mt-6">
+          <button @click="closeDeleteModal" class="px-6 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300 transition">Batal</button>
+          <button @click="itemToDelete.type === 'item' ? handleDeleteItem() : handleDeleteImage()" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition" :disabled="isSubmitting">
+            <span x-show="!isSubmitting">Ya, Hapus</span><span x-show="isSubmitting">Menghapus...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div x-show="isSuccessModalOpen" x-cloak @keydown.escape.window="closeSuccessModal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+      <div @click.away="closeSuccessModal" x-show="isSuccessModalOpen" x-transition class="bg-white rounded-xl p-8 shadow-2xl max-w-sm w-full text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mt-6 mb-2">Berhasil!</h3>
+        <p class="text-slate-600 mb-6" x-text="successMessage"></p>
+        <button @click="closeSuccessModal" class="w-full px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Tutup</button>
+      </div>
+    </div>
+
+    <footer class="bg-slate-900 text-white py-10">
+      <div class="container mx-auto px-4 text-center text-slate-400">
+        <p>© <span x-text="new Date().getFullYear()"></span> WebKangAlam. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

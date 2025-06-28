@@ -1,0 +1,94 @@
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f8fafc;
+}
+[x-cloak] {
+  display: none !important;
+}
+body.overflow-hidden {
+  overflow: hidden;
+}
+.id-card-viewport {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+  perspective: 1000px;
+}
+.lanyard-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.lanyard-path {
+  stroke-width: 8px;
+  stroke: #6b7280;
+  fill: none;
+  filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.2));
+  stroke-linecap: round;
+}
+.id-card {
+  width: 240px;
+  height: 380px;
+  background: linear-gradient(145deg, #4f46e5, #8a5cf6);
+  color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05);
+  cursor: grab;
+  transform-origin: top center;
+  user-select: none;
+  position: absolute;
+  pointer-events: auto;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transform: translateY(50px) rotateX(-20deg);
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.id-card.is-visible {
+  opacity: 1;
+  transform: translateY(0) rotateX(0);
+}
+.id-card:active {
+  cursor: grabbing;
+}
+.id-card-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+.id-card-name {
+  font-weight: 700;
+  font-size: 1.07rem;
+  text-align: center;
+}
+.id-card-title {
+  font-weight: 500;
+  color: #d1d5db;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+.id-card-qr {
+  margin-top: auto;
+  padding: 8px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
